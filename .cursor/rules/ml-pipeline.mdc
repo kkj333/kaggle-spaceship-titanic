@@ -43,7 +43,9 @@ OUTPUT_DIR = ROOT / "output"
 
 | ノートブック | モデル | CV (accuracy) | LB | 備考 |
 |-------------|--------|---------------|-----|------|
-| `01_baseline.ipynb` | RandomForest | ~0.804 | （未提出） | 土台 |
+| `01_baseline.ipynb` | RandomForest | ~0.8035 | 0.7978 | 土台 |
+| `02_lightgbm.ipynb` | LightGBM | ~0.8098 | **0.8045** | ベスト LB |
+| `03_ensemble.ipynb` | RF+LGBM soft voting | ~0.8120 | 0.8041 | CV↑ LB↓ |
 
 - 評価: `StratifiedKFold(n_splits=5, shuffle=True, random_state=42)`
 - **CV が上がっても LB が下がることがある**（Titanic / House Prices と同様）

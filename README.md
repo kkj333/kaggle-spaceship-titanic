@@ -4,29 +4,38 @@
 
 分類コンペの続きとして、[Titanic プロジェクト](https://github.com/kkj333/kaggle-titanic) の次、[House Prices プロジェクト](https://github.com/kkj333/kaggle-house-prices) と並ぶ **Getting Started** 系の土台です。
 
-**Kaggle:** [kkj333](https://www.kaggle.com/kkj333) · **ベースライン CV accuracy: ~0.804**（`01_baseline.ipynb` · 5-fold StratifiedKFold）
+**Kaggle:** [kkj333](https://www.kaggle.com/kkj333) · **最終スコア: Public LB 0.80453**（`02_lightgbm.ipynb`）
 
-## ベースラインモデル
+## 最終モデル
 
 | 項目 | 内容 |
 |------|------|
-| モデル | RandomForest（300 trees） |
+| モデル | LightGBM |
 | 前処理 | Cabin 分割・TotalSpend・GroupSize・IsAlone + 欠損補完 + One-Hot |
 | 評価指標 | **accuracy**（高いほど良い） |
-| 提出ファイル | `output/submission.csv` |
-| ノートブック | **`notebooks/01_baseline.ipynb`** ← まずここ |
+| 提出ファイル | `output/submission_lgbm.csv` |
+| ノートブック | **`notebooks/02_lightgbm.ipynb`** ← まずここ |
 
 ```bash
 uv run kaggle competitions submit -c spaceship-titanic \
-  -f output/submission.csv \
-  -m "baseline rf cabin+spend+group"
+  -f output/submission_lgbm.csv \
+  -m "lightgbm cabin+spend+group"
 ```
 
 ## 試行錯誤の結果
 
 | # | ノートブック | モデル | CV (accuracy) | LB | 所感 |
 |---|-------------|--------|---------------|-----|------|
-| 01 | baseline | RandomForest | **~0.804** | — | 土台 |
+| 01 | baseline | RandomForest | ~0.8035 | 0.7978 | 土台 |
+| **02** | **lightgbm** | **LightGBM** | **~0.8098** | **0.8045** | **ベスト LB** |
+| 03 | ensemble | RF+LGBM soft voting | ~0.8120 | 0.8041 | CV↑ LB↓ |
+
+### 学んだこと
+
+- **同じ FE なら LightGBM が RF より CV/LB とも改善**（古典 Titanic とは逆パターン）
+- **アンサンブルは CV だけ上がることもある** → 03 で RF+LGBM soft voting が CV 最高だが LB は 02 より下
+- **CV（模試）と LB（本番）のズレ** は House Prices / 古典 Titanic と同様に起きうる
+- Spaceship Titanic も **堅実な FE + モデル差し替え** がまず効く
 
 ## 使った特徴量（FE）
 
