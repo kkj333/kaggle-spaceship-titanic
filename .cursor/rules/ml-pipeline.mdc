@@ -1,0 +1,58 @@
+---
+description: Spaceship Titanic ML パイプライン（前処理・特徴量・学習・提出）の規約
+globs: notebooks/**
+alwaysApply: false
+---
+
+# ML パイプライン規約
+
+## パス解決
+
+ノートブックはプロジェクトルートまたは `notebooks/` から実行される。ROOT は両方に対応する:
+
+```python
+ROOT = Path.cwd()
+if not (ROOT / "data").exists() and (ROOT.parent / "data").exists():
+    ROOT = ROOT.parent
+DATA_DIR = ROOT / "data"
+OUTPUT_DIR = ROOT / "output"
+```
+
+## 目的変数
+
+- 正解列: `Transported`（bool … 別次元へ転送されたか）
+- Kaggle 評価: **accuracy**（高いほど良い）
+- 学習時は bool または 0/1 のどちらでもよいが、提出 CSV は **True/False** に合わせる
+
+## 前処理
+
+- `sklearn.pipeline.Pipeline` + `ColumnTransformer` で前処理とモデルを一体化する
+- 数値欠損: `SimpleImputer(strategy="median")`
+- カテゴリ欠損: `SimpleImputer(strategy="most_frequent")` → `OneHotEncoder(handle_unknown="ignore")`
+- **CV スコアを信頼**し、train accuracy だけで判断しない
+
+## 特徴量（定番）
+
+- `Cabin` 分割 … `Deck` / `CabinNum` / `Side`（例: `B/0/P`）
+- `TotalSpend` = RoomService + FoodCourt + ShoppingMall + Spa + VRDeck
+- `GroupSize` … `PassengerId` のグループ ID（`_` より前）で人数を数える（train+test 結合でカウント）
+- `IsAlone` … GroupSize == 1
+- CryoSleep が True のとき支出が 0 になりやすい → CryoSleep をそのまま使う
+
+## モデル
+
+| ノートブック | モデル | CV (accuracy) | LB | 備考 |
+|-------------|--------|---------------|-----|------|
+| `01_baseline.ipynb` | RandomForest | ~0.804 | （未提出） | 土台 |
+
+- 評価: `StratifiedKFold(n_splits=5, shuffle=True, random_state=42)`
+- **CV が上がっても LB が下がることがある**（Titanic / House Prices と同様）
+- 新モデル追加時は CV と LB の両方を記録する
+
+## 提出
+
+```python
+submission = sample_submission.copy()
+submission["Transported"] = predictions.astype(bool)
+submission.to_csv(OUTPUT_DIR / "submission.csv", index=False)
+```

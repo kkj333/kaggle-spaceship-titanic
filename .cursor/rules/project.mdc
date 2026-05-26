@@ -1,0 +1,61 @@
+---
+description: kaggle-spaceship-titanic プロジェクトの基本操作（uv・Kaggle・ディレクトリ構成）
+alwaysApply: true
+---
+
+# kaggle-spaceship-titanic プロジェクトルール
+
+## 環境
+
+- パッケージ管理は **uv のみ**（`pip install` は使わない）
+- コマンドは `uv run` 経由で実行する
+
+```bash
+uv add <package>      # 依存追加
+uv sync               # 同期
+uv run jupyter lab    # Jupyter 起動
+uv run python ...     # スクリプト実行
+```
+
+- Jupyter カーネル: **Python (kaggle-spaceship-titanic)**（`.venv` を使う）
+- macOS で LightGBM を使う場合: `brew install libomp` が必要（Python パッケージは `uv add lightgbm`）
+
+## ディレクトリ
+
+| パス | 用途 |
+|------|------|
+| `data/` | Kaggle データ（git 管理外） |
+| `output/` | 提出 CSV（git 管理外） |
+| `notebooks/` | 分析・学習ノートブック |
+
+## Kaggle
+
+```bash
+uv run kaggle auth login
+uv run kaggle competitions download -c spaceship-titanic -p data
+uv run kaggle competitions submit -c spaceship-titanic -f output/submission.csv -m "message"
+```
+
+- 認証情報: `~/.kaggle/kaggle.json`
+- **初回は Web でコンペに Join してから** データ DL・提出する
+- 提出前に `data/train.csv` と `data/test.csv` の存在を確認する
+
+## GitHub（gh コマンド）
+
+GitHub 操作は **gh コマンド** を使う（Web UI より CLI を優先）。
+
+```bash
+gh repo view                          # リポジトリ確認
+gh issue create --title "..." --body "..."
+gh pr create --title "..." --body "..."
+git push origin main                  # 通常の push
+```
+
+- commit はユーザーが明示的に依頼したときのみ作成する
+- `data/`, `output/`, `.venv/`, `~/.kaggle/` はコミットしない
+
+## コーディング方針
+
+- 新しい分析は `notebooks/` に番号付きで追加（例: `02_lightgbm.ipynb`）
+- 提出ファイル名は `output/submission*.csv`
+- 説明・解説は日本語で書く（ユーザー向け Markdown セル）
