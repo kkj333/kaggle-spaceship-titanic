@@ -49,7 +49,7 @@ uv run kaggle competitions submit -c spaceship-titanic \
 ## セットアップ
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/kkj333/kaggle-spaceship-titanic.git
 cd kaggle-spaceship-titanic
 uv sync
 uv run kaggle auth login                              # 初回のみ
